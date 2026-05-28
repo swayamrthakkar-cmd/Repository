@@ -44,14 +44,14 @@ def month12Momentum2(prices):
     return total
 
 def month12Growth(array):
-    score = (statistics.mean(array) - array[-1]) * 10
+    score = (((statistics.mean(array) / max(array)) * 100) - ((array[-1] / max(array)) * 100)) * 100
     return score
 
-def month12Agg(array, share):
-    ticker = yf.Ticker(share)
-    x = ticker.recommendations
-
-    return x
+def month12Growth(array):
+    oldest = array[-1]
+    newest = array[0]
+    score = ((newest - oldest) / oldest) * 100
+    return score
 
 def recordData(array):
     ...
