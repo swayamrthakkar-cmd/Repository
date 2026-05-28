@@ -1,41 +1,20 @@
 import yfinance as yf
+import pandas as pd
+import math
+import statistics
+
 data = yf.download("AAPL", period="24mo", interval="1d")
 
 print(data)
 
-ago0 = data["Close"].iloc[-1]
-ago1 = data["Close"].iloc[-30]
-ago2 = data["Close"].iloc[-60]
-ago3 = data["Close"].iloc[-90]
-ago4 = data["Close"].iloc[-120]
-ago5 = data["Close"].iloc[-150]
-ago6 = data["Close"].iloc[-180]
-ago7 = data["Close"].iloc[-210]
-ago8 = data["Close"].iloc[-240]
-ago9 = data["Close"].iloc[-270]
-ago10 = data["Close"].iloc[-300]
-ago11 = data["Close"].iloc[-330]
-ago12 = data["Close"].iloc[-360]
+close_prices = []
+volumes = []
 
-ago0_vol = data["Volume"].iloc[-1]
-ago1_vol = data["Volume"].iloc[-30]
-ago2_vol = data["Volume"].iloc[-60]
-ago3_vol = data["Volume"].iloc[-90]
-ago4_vol = data["Volume"].iloc[-120]
-ago5_vol = data["Volume"].iloc[-150]
-ago6_vol = data["Volume"].iloc[-180]
-ago7_vol = data["Volume"].iloc[-210]
-ago8_vol = data["Volume"].iloc[-240]
-ago9_vol = data["Volume"].iloc[-270]
-ago10_vol = data["Volume"].iloc[-300]
-ago11_vol = data["Volume"].iloc[-330]
-ago12_vol = data["Volume"].iloc[-360]
+for i in range(0, 361, 30):
+    close_prices.append(float(data["Close"]["AAPL"].iloc[-1 - i]))
+    volumes.append(float(data["Volume"]["AAPL"].iloc[-1 - i]))
 
-array_vol = [ago0_vol, ago1_vol, ago2_vol, ago3_vol, ago4_vol, ago5_vol, ago6_vol, ago7_vol, ago8_vol, ago9_vol, ago10_vol, ago11_vol, ago12_vol]
-
-array = [ago0, ago1, ago2, ago3, ago4, ago5, ago6, ago7, ago8, ago9, ago10, ago11, ago12]
-
-def longTermMomentum(array):
+def month12Momentum(array):
     positive = 0
     gains = []
     for i in range(len(array)-1):
@@ -48,5 +27,33 @@ def longTermMomentum(array):
     score = (positive / len(gains)) * 100
     return score
 
-def longTermVolume(array):
+def month12Momentum2(prices):
+    total = 0
+
+    for i in range(len(prices) - 1):
+        old_price = prices[i + 1]
+        new_price = prices[i]
+
+        percent_change = (
+            (new_price - old_price)
+            / old_price
+        ) * 100
+
+        total += percent_change
+
+    return total
+
+def month12Growth(array):
+    score = (statistics.mean(array) - array[-1]) * 10
+    return score
+
+def month12Agg(array, share):
+    ticker = yf.Ticker(share)
+    x = ticker.recommendations
+
+    return x
+
+def recordData(array):
     ...
+
+print(statistics.mean([month12Momentum(close_prices), month12Momentum2(close_prices), month12Growth(close_prices)]))
